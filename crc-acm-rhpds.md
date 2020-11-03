@@ -93,3 +93,21 @@ In order for the cluster to import properly to ACM since its running on CRC you 
 ssh core@master-0
 ip route add 192.168.130.11 via 10.20.0.2 dev ens4
 
+We also need to add a dns zone on the provisioning hosts dns server for api.crc.testing:
+
+[root@provision named]# more crc.testing.zone 
+$TTL 1D
+@   IN SOA  dns.crc.testing   root.dns.crc.testing. (
+                                       2017031330      ; serial
+                                       1D              ; refresh
+                                       1H              ; retry
+                                       1W              ; expire
+                                       3H )            ; minimum
+
+$ORIGIN         crc.testing.
+crc.testing.            IN      NS      dns.crc.testing.
+dns                     IN      A       10.20.0.2
+
+api		        IN	A	192.168.130.11
+
+
