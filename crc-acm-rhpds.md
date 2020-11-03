@@ -1,6 +1,6 @@
 # Deploy CRC and ACM on CRC
 
-This document assumes you have access to RHPDS, have requested a DEV GPTE Sandbox lab and have used Agnosticd and the kni-osp plugin to provision 4 nodes: provision node and 3 master nodes.   The provisioning node should use the OSP flavor 16c64gb100d and the master nodes should use the OSP flavor 16c20gb100d.  Once that is provisioned you can then use the steps below to deploy an CRC environment on the provisioning node with which you can install ACM onto it and then deploy a 3 master baremetal IPI clutser.
+This document assumes you have access to RHPDS, have requested a DEV GPTE Sandbox lab and have used Agnosticd and the kni-osp plugin to provision 4 nodes: provision node and 3 master nodes.   The provisioning node should use the OSP flavor 16c64gb100d and the master nodes should use the OSP flavor 16c30gb100d.  Once that is provisioned you can then use the steps below to deploy an CRC environment on the provisioning node with which you can install ACM onto it and then deploy a 3 master baremetal IPI clutser.
 
 Go to the following to obtain a link for crc that we can use to curl down the tar file:
 
@@ -28,7 +28,7 @@ crc stop
 
 Now resize 
 
-qemu-img resize ~/.crc/machines/crc/crc +20G
+qemu-img resize ~/.crc/machines/crc/crc.qcow2 +20G
 
 crc start
 
