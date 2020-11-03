@@ -88,4 +88,8 @@ Then use the following for a baremetal cluster deploy:
 
 https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.0/html/manage_cluster/creating-a-cluster-with-red-hat-advanced-cluster-management-for-kubernetes#creating-a-cluster-on-bare-metal
 
+In order for the cluster to import properly to ACM since its running on CRC you need to add static route on each master node in the cluster:
+
+ssh core@master-0
+ip route add 192.168.130.11 via 10.20.0.2 dev ens4
 
