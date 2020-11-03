@@ -15,6 +15,7 @@ cd crc-linux-1.17.0-amd64
 crc setup 
 
 crc config set cpus 10
+
 crc config set memory 32000
 
 crc start
@@ -67,18 +68,24 @@ All pods should be up before proceeding:
 
 oc get pods -n acm
 
+If using ACM 2.0 or less then we have to expose baremetal in the UI:
+
+oc patch deploy console-header -n acm -p '{"spec":{"template":{"spec":{"containers":[{"name":"console-header","env": [{"name": "featureFlags_baremetal","value":"true"}]}]}}}}'
+
+oc patch -n acm $(oc get deploy -o name | grep consoleui) -p '{"spec":{"template":{"spec":{"containers":[{"name":"hcm-ui","env": [{"name": "featureFlags_baremetal","value":"true"}]}]}}}}'
+
 To access the UI for ACM/CRC OCP Cluster I chose tigerVNC.  Configure vnc on provisioning node and run vnc-server.  Establish a vnc tunnel over SSH and then using the VNC client from your local laptop/workstation connect.  I set my display on provisioner and ran Firefox which then showed up on my vnc session.
+
+Create the baremetal assets (ie the baremetal hosts that ACM will deploy OCP on):
+
+https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.0/html/manage_cluster/creating-and-modifying-bare-metal-assets
 
 Use the following to create a provider connection:
 
 https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.0/html/manage_cluster/creating-a-provider-connection#creating-a-provider-connection-for-bare-metal
 
-Then use the following to deploy 
+Then use the following for a baremetal cluster deploy:
+
+https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.0/html/manage_cluster/creating-a-cluster-with-red-hat-advanced-cluster-management-for-kubernetes#creating-a-cluster-on-bare-metal
 
 
-~~~bash
-[lab-user@provision ~]$ grep -A2 compute ~/scripts/install-config.yaml
-compute:
-- name: worker
-  replicas: 2
-~~~
