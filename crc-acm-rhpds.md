@@ -2,9 +2,11 @@
 
 This document assumes you have access to RHPDS, have requested a DEV GPTE Sandbox lab and have used Agnosticd and the kni-osp plugin to provision 4 nodes: provision node and 3 master nodes.   The provisioning node should use the OSP flavor 16c64gb100d and the master nodes should use the OSP flavor 16c20gb100d.  Once that is provisioned you can then use the steps below to deploy an CRC environment on the provisioning node with which you can install ACM onto it and then deploy a 3 master baremetal IPI clutser.
 
-Go to the following to obtain a link for crc 
+Go to the following to obtain a link for crc that we can use to curl down the tar file:
 
 https://cloud.redhat.com/openshift/install/crc/installer-provisioned
+
+curl -o crc-linux-amd64.tar.xz https://mirror.openshift.com/pub/openshift-v4/clients/crc/latest/crc-linux-amd64.tar.xz
 
 tar -xf crc-linux-amd64.tar.xz
 
