@@ -18,31 +18,29 @@ crc config set cpus 10
 
 crc config set memory 32000
 
+crc config set disk-size 50
+
 crc start
 
 Paste in pull secret obtained from Code Ready Container site
 
-We need to resize the qcow2 it pulls down.  Once the environment finishes coming up stop it again
+Because of the way the disk sizing is down in crc we need to stop and start the crc environment to ensure our disk is set to 50GB
 
 crc stop
 
-Now resize 
-
-qemu-img resize ~/.crc/machines/crc/crc.qcow2 +20G
-
 crc start
+
+Verify if you like:
+
+ssh -i /home/cloud-user/.crc/machines/crc/id_rsa core@192.168.130.1
+
+df -h /sysroot
 
 crc oc-env
 
 eval $(crc oc-env)
 
 oc login -u kubeadmin -p dpDFV-xamBW-kKAk3-Fi6Lg https://api.crc.testing:6443
-
-Login to crc node to finish resize:
-
-ssh -i /home/cloud-user/.crc/machines/crc/id_rsa core@192.168.130.11 
-
-sudo xfs_growfs /sysroot
 
 Now we can move onto installing ACM.  The templates used to deploy ACM from the cli are in this repository.
 
