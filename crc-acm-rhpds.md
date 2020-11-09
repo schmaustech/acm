@@ -32,7 +32,7 @@ crc start
 
 Verify if you like:
 
-ssh -i /home/cloud-user/.crc/machines/crc/id_rsa core@192.168.130.1
+ssh -i /home/cloud-user/.crc/machines/crc/id_rsa core@192.168.130.11
 
 df -h /sysroot
 
