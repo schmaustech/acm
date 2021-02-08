@@ -15,4 +15,38 @@ Customers that are part of the RHACM Early Access program can obtain pre-release
 sudo ln -s /usr/local/bin/oc /usr/local/bin/kubectl
 git clone https://github.com/open-cluster-management/deploy.git
 ~~~
-10) 
+10) Create a pull-secret.yaml file from the contents of username-secret.yaml file obtained from Quay.io.  The metadata name should be updated to: multiclusterhub-operator-pull-secret.  Place the file inside the deploy/prereqs directory.  The finished file and location should look similar to the below but note the pull-secret itself has been redacted in this example:
+~~~bash
+$ cat ~/deploy/prereqs/pull-secret.yaml 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: multiclusterhub-operator-pull-secret
+data:
+  .dockerconfigjson: <PULL-SECRET REDACTED>
+type: kubernetes.io/dockerconfigjson
+~~~
+11) Update the snapshot file to a known good pre-release snapshot.  If not know ask the Red Hat Field Product Manager and they can provide that.  The updated file will look similar to the one below:
+~~~bash
+$ cat ~/deploy/snapshot.ver 
+2.2.0-DOWNSTREAM-2021-01-28-15-20-59
+~~~
+12) Create an ImageContentSourcePolicy and apply it to the cluster.  The contents of that policy should look like the one below:
+~~~bash
+$ cat ~/icsp.yaml
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageContentSourcePolicy
+metadata:
+  name: rhacm-repo
+spec:
+  repositoryDigestMirrors:
+  - mirrors:
+    - quay.io:443/acm-d
+    source: registry.redhat.io/rhacm2
+  - mirrors:
+    - registry.redhat.io/openshift4/ose-oauth-proxy
+    source: registry.access.redhat.com/openshift4/ose-oauth-proxy
+$ oc apply -f ~/icsp.yaml
+~~~
+13) Wait for nodes to reboot as the ImageContentSourcePolicy is applied before proceeding.
+14) 
