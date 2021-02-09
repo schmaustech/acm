@@ -8,7 +8,7 @@ Customers that are part of the RHACM Early Access program can obtain pre-release
 4) On the left hand side of *Account Settings* select the *Gears* icon for user settings.
 5) Near the top left of the settings page will be *CLI Password*.  Select this and type in the password for the username.
 6) This will generate a *Username Credentials* box that will have various credentials for the user.  Select the *Kubernetes Secret* on the left hand side list.
-7) Download the username-secret.yaml from the box as we will need this for later steps.  
+7) Download the username-secret.yaml from the box as we will need this for later steps.   Move this file to host where the oc client and OpenShift cluster access will be. 
 8) Do not proceed with the next steps until the username has been confirmed by Red Hat that it has been given access to the private registry.
 9) Obtain the upstream ACM deploy repository at Github on a machine that also has a working oc client and kubeconfig with access to the OpenShift cluster that will become the hub.  Also make a softlink for kubectl to the oc client if kubectl does not exist on host. :
 ~~~bash
@@ -49,4 +49,23 @@ spec:
 $ oc apply -f ~/icsp.yaml
 ~~~
 13) Wait for nodes to reboot as the ImageContentSourcePolicy is applied before proceeding.
-14) 
+14) Next pull the current pull secret from the cluster and dump into file:
+~~~bash
+oc get secret/pull-secret -n openshift-config -o json | jq '.data.".dockerconfigjson"' | tr -d '"' | base64 -d > ~/cluster-pull-secret.json
+~~~
+15) Extract the pre-release pull secret from the pull-secret.yaml created back in step 10:
+~~~bash
+export PRERELEASE_PULL=$(grep -o '.dockerconfigjson:.*' ~/deploy/prereqs/pull-secret.yaml | cut -f2- -d: | sed 's/^[ \t]*//;s/[ \t]*$//')
+~~~
+16) Convert quay.io to quay.io:443 and dump out pre-release pull secret:
+~~~bash
+echo $PRERELEASE_PULL | base64 -d | sed "s/quay\.io/quay\.io:443/g" > ~/prerelease-secret.json
+~~~
+17) Merge prerelease-secret.json with existing cluster-pull-secret.json
+~~~bash
+cat ~/cluster-pull-secret.json | jq ".auths += {`cat ~/prerelease-secret.json`}" > merged-pull-secret.json
+~~~
+18) Patch cluster with new merged-pull-secret.json
+~~~bash
+oc patch secret/pull-secret -n openshift-config --type merge --patch '{"data":{".dockerconfigjson":"'$(cat ~/merged-pull-secret.json | tr -d '[:space:]' | base64 -w 0)'"}}'
+~~~
