@@ -57,7 +57,7 @@ oc get secret/pull-secret -n openshift-config -o json | jq '.data.".dockerconfig
 ~~~bash
 export PRERELEASE_PULL=$(grep -o '.dockerconfigjson:.*' ~/deploy/prereqs/pull-secret.yaml | cut -f2- -d: | sed 's/^[ \t]*//;s/[ \t]*$//')
 ~~~
-16) Convert quay.io to quay.io:443 and dump out pre-release pull secret:
+16) Convert quay.io to quay.io:443 and dump out to prerelease-secret.json:
 ~~~bash
 echo $PRERELEASE_PULL | base64 -d | sed "s/quay\.io/quay\.io:443/g" | tail -n +3 | head -n -2 > ~/prerelease-secret.json
 ~~~
