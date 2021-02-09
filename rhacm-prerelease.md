@@ -82,9 +82,13 @@ oc get nodes
 export DEBUG=true
 export COMPOSITE_BUNDLE=true
 export CUSTOM_REGISTRY_REPO="quay.io:443/acm-d"
+export QUAY_TOKEN=`echo $PRERELEASE_PULL| base64 -d|grep \"auth\"|cut -d \" -f 4`
 ~~~
 21) Run the deploy process to install prerelease RHACM:
 ~~~bash
 cd ~/deploy
 ./start.sh --watch
 ~~~
+22) Once the start.sh script completes the RHACM components should be installed and ready to use.
+
+23) If RHACM should be uninstalled just run the ./uninstall.sh script in ~/deploy.
