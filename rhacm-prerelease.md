@@ -4,7 +4,7 @@ Customers that are part of the RHACM Early Access program can obtain pre-release
 
 1) Go to [Quay.io](https://quay.io) and register for an account.
 2) Once a username has been created provide that username to the Red Hat Field Product Manager who will get it associated to the private pre-release registries.
-3) In the Quay.io interface in the upper right hand corner if you click on the username a drop down with *Account Settings* will appear.  Go into *Account Settings*.
+3) In the Quay.io interface in the upper right hand corner click on the username and a drop down with *Account Settings* will appear.  Go into *Account Settings*.
 4) On the left hand side of *Account Settings* select the *Gears* icon for user settings.
 5) Near the top left of the settings page will be *CLI Password*.  Select this and type in the password for the username.
 6) This will generate a *Username Credentials* box that will have various credentials for the user.  Select the *Kubernetes Secret* on the left hand side list.
