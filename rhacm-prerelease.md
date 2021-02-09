@@ -82,7 +82,8 @@ oc get nodes
 export DEBUG=true
 export COMPOSITE_BUNDLE=true
 export CUSTOM_REGISTRY_REPO="quay.io:443/acm-d"
-export QUAY_TOKEN=`echo $PRERELEASE_PULL| base64 -d|grep \"auth\"|cut -d \" -f 4`
+export DOCKER_CONFIG=`cat ~/deploy/prereqs/pull-secret.yaml |grep dockerconfigjson:|cut -d: -f2|tr -d '[:space:]'`
+export QUAY_TOKEN=$(echo $DOCKER_CONFIG | base64 -d | sed "s/quay\.io/quay\.io:443/g" | base64 -w 0)
 ~~~
 21) Run the deploy process to install prerelease RHACM:
 ~~~bash
