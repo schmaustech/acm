@@ -48,47 +48,51 @@ spec:
     source: registry.access.redhat.com/openshift4/ose-oauth-proxy
 $ oc apply -f ~/icsp.yaml
 ~~~
+Note:  As an alternate to creating the above there is an ImageContentSourcePolicy also in the Github repository that was cloned.  Just make sure it looks like the above before running the command:
+~~~bash
+$ oc apply -f  ~/deploy/addons/downstream/image-content-source-policy.yaml
+~~~
 13) Wait for nodes to reboot as the ImageContentSourcePolicy is applied before proceeding.
 14) Next pull the current pull secret from the cluster and dump into file:
 ~~~bash
-oc get secret/pull-secret -n openshift-config -o json | jq '.data.".dockerconfigjson"' | tr -d '"' | base64 -d > ~/cluster-pull-secret.json
+$ oc get secret/pull-secret -n openshift-config -o json | jq '.data.".dockerconfigjson"' | tr -d '"' | base64 -d > ~/cluster-pull-secret.json
 ~~~
 15) Extract the pre-release pull secret from the pull-secret.yaml created back in step 10:
 ~~~bash
-export PRERELEASE_PULL=$(grep -o '.dockerconfigjson:.*' ~/deploy/prereqs/pull-secret.yaml | cut -f2- -d: | sed 's/^[ \t]*//;s/[ \t]*$//')
+$ export PRERELEASE_PULL=$(grep -o '.dockerconfigjson:.*' ~/deploy/prereqs/pull-secret.yaml | cut -f2- -d: | sed 's/^[ \t]*//;s/[ \t]*$//')
 ~~~
 16) Convert quay.io to quay.io:443 and dump out to prerelease-secret.json:
 ~~~bash
-echo $PRERELEASE_PULL | base64 -d | sed "s/quay\.io/quay\.io:443/g" | tail -n +3 | head -n -2 > ~/prerelease-secret.json
+$ echo $PRERELEASE_PULL | base64 -d | sed "s/quay\.io/quay\.io:443/g" | tail -n +3 | head -n -2 > ~/prerelease-secret.json
 ~~~
 17) Merge prerelease-secret.json with existing cluster-pull-secret.json
 ~~~bash
-cat ~/cluster-pull-secret.json | jq ".auths += {`cat ~/prerelease-secret.json`}" > merged-pull-secret.json
+$ cat ~/cluster-pull-secret.json | jq ".auths += {`cat ~/prerelease-secret.json`}" > merged-pull-secret.json
 ~~~
 18) Patch cluster with new merged-pull-secret.json
 ~~~bash
-oc patch secret/pull-secret -n openshift-config --type merge --patch '{"data":{".dockerconfigjson":"'$(cat ~/merged-pull-secret.json | tr -d '[:space:]' | base64 -w 0)'"}}'
+$ oc patch secret/pull-secret -n openshift-config --type merge --patch '{"data":{".dockerconfigjson":"'$(cat ~/merged-pull-secret.json | tr -d '[:space:]' | base64 -w 0)'"}}'
 ~~~
 19) Validate pull-secret from cluster looks correct:
 ~~~bash
-oc get secret/pull-secret -n openshift-config -o json | jq '.data.".dockerconfigjson"' | tr -d '"' | base64 -d | python3 -m json.tool
+$ oc get secret/pull-secret -n openshift-config -o json | jq '.data.".dockerconfigjson"' | tr -d '"' | base64 -d | python3 -m json.tool
 ~~~
 20) Wait for cluster node restarts due to change of pull-secret.  Validate all nodes are up:
 ~~~bash
-oc get nodes
+$ oc get nodes
 ~~~
 21) Set a few environmental variables for the deploy:
 ~~~bash
-export DEBUG=true
-export COMPOSITE_BUNDLE=true
-export CUSTOM_REGISTRY_REPO="quay.io:443/acm-d"
-export DOCKER_CONFIG=`cat ~/deploy/prereqs/pull-secret.yaml |grep dockerconfigjson:|cut -d: -f2|tr -d '[:space:]'`
-export QUAY_TOKEN=$(echo $DOCKER_CONFIG | base64 -d | sed "s/quay\.io/quay\.io:443/g" | base64 -w 0)
+$ export DEBUG=true
+$ export COMPOSITE_BUNDLE=true
+$ export CUSTOM_REGISTRY_REPO="quay.io:443/acm-d"
+$ export DOCKER_CONFIG=`cat ~/deploy/prereqs/pull-secret.yaml |grep dockerconfigjson:|cut -d: -f2|tr -d '[:space:]'`
+$ export QUAY_TOKEN=$(echo $DOCKER_CONFIG | base64 -d | sed "s/quay\.io/quay\.io:443/g" | base64 -w 0)
 ~~~
 21) Run the deploy process to install prerelease RHACM:
 ~~~bash
-cd ~/deploy
-./start.sh --watch
+$ cd ~/deploy
+$ ./start.sh --watch
 ~~~
 22) Once the start.sh script completes the RHACM components should be installed and ready to use.
 
