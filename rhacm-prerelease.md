@@ -69,3 +69,22 @@ cat ~/cluster-pull-secret.json | jq ".auths += {`cat ~/prerelease-secret.json`}"
 ~~~bash
 oc patch secret/pull-secret -n openshift-config --type merge --patch '{"data":{".dockerconfigjson":"'$(cat ~/merged-pull-secret.json | tr -d '[:space:]' | base64 -w 0)'"}}'
 ~~~
+19) Validate pull-secret from cluster looks correct:
+~~~bash
+oc get secret/pull-secret -n openshift-config -o json | jq '.data.".dockerconfigjson"' | tr -d '"' | base64 -d | python3 -m json.tool
+~~~
+20) Wait for cluster node restarts due to change of pull-secret.  Validate all nodes are up:
+~~~bash
+oc get nodes
+~~~
+21) Set a few environmental variables for the deploy:
+~~~bash
+export DEBUG=true
+export COMPOSITE_BUNDLE=true
+export CUSTOM_REGISTRY_REPO="quay.io:443/acm-d"
+~~~
+21) Run the deploy process to install prerelease RHACM:
+~~~bash
+cd ~/deploy
+./start.sh --watch
+~~~
